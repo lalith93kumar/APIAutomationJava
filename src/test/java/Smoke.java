@@ -2,8 +2,10 @@ import endpoint.pet.PetRequest;
 import endpoint.pet.PetResponse;
 import endpoint.pet.UpdatePetDetailsFormData.UpdatePetDetailsFormDataClient;
 import endpoint.pet.createPet.CreatePetClient;
+import endpoint.pet.deletePet.DeletePetClient;
 import endpoint.pet.getPetDetails.GetPetDetailsClient;
 import endpoint.pet.updatePetDetails.UpdatePetDetailsClient;
+import frame.ResponseMetaData;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -11,7 +13,7 @@ import java.util.Arrays;
 public class Smoke extends BaseTest {
 
     @Test
-    public void CreatePet()
+    public void createPet()
     {
         PetRequest request;
         request = PetRequest.builder()
@@ -36,7 +38,7 @@ public class Smoke extends BaseTest {
     }
 
     @Test
-    public void UpdatePet()
+    public void updatePetDetails()
     {
         PetRequest request;
         request = PetRequest.builder()
@@ -64,7 +66,7 @@ public class Smoke extends BaseTest {
     }
 
     @Test
-    public void UpdatePetFormData()
+    public void updatePetDetailsWithFormData()
     {
         PetRequest request;
         request = PetRequest.builder()
@@ -87,5 +89,24 @@ public class Smoke extends BaseTest {
         getPetDetailsResponse.assertHttpStatusToBe(200);
         getPetDetailsResponse.assertName(updaterequest.getName());
         getPetDetailsResponse.assertStatus(updaterequest.getStatus());
+    }
+
+    @Test
+    public void DeletePetDetailsWithID()
+    {
+        PetRequest request;
+        request = PetRequest.builder()
+                .name("dog1"+ get3DigitRandomInt())
+                .status("available")
+                .category(PetRequest.Category.builder().name("string").build())
+                .photoUrls(Arrays.asList("string"))
+                .tags(Arrays.asList(PetRequest.Tags.builder().name("string").build()))
+                .build();
+        PetResponse response = new CreatePetClient().createpetWithvalid(request);
+        response.assertHttpStatusToBe(200);
+        ResponseMetaData responseMetaData = new DeletePetClient().deletePetWithID(response.getId());
+        responseMetaData.assertHttpStatusToBe(200);
+        ResponseMetaData deletedPetDetailsResponse = new GetPetDetailsClient().getDeletedPetDetailsByID(response.getId());
+        deletedPetDetailsResponse.assertHttpStatusToBe(404);
     }
 }
