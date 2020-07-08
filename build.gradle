@@ -9,10 +9,21 @@ repositories {
     mavenCentral()
 }
 task runTests(type: Test) {
-    useTestNG {}
+    useJUnit{}
     reports {
         junitXml.enabled = false
         html.enabled = true
+    }
+
+    testLogging {
+        afterSuite { desc, result ->
+            if (!desc.parent) {
+                def output = "Results: ${result.resultType} (${result.testCount - result.skippedTestCount} tests, ${result.successfulTestCount} passed, ${result.failedTestCount} failed, ${result.skippedTestCount} retries)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+            }
+        }
     }
 }
 
